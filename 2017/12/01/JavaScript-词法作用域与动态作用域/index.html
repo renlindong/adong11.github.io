@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="JavaScript如何对变量和函数进行查找以及确定当前执行环境的访问权限？">
+<meta name="description" content="本文阐述了我对JavaScript作用域和闭包的一些理解，第一次写文，难免有阐述不清楚的地方，还望读者能够指出。">
 <meta name="keywords" content="JavaScript">
 <meta property="og:type" content="article">
-<meta property="og:title" content="JavaScript 词法作用域与动态作用域">
+<meta property="og:title" content="JavaScript 作用域和闭包">
 <meta property="og:url" content="http://yoursite.com/2017/12/01/JavaScript-词法作用域与动态作用域/index.html">
 <meta property="og:site_name" content="阿东的前端日记">
-<meta property="og:description" content="JavaScript如何对变量和函数进行查找以及确定当前执行环境的访问权限？">
+<meta property="og:description" content="本文阐述了我对JavaScript作用域和闭包的一些理解，第一次写文，难免有阐述不清楚的地方，还望读者能够指出。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-01T07:24:26.000Z">
+<meta property="og:updated_time" content="2017-12-13T03:45:16.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="JavaScript 词法作用域与动态作用域">
-<meta name="twitter:description" content="JavaScript如何对变量和函数进行查找以及确定当前执行环境的访问权限？">
+<meta name="twitter:title" content="JavaScript 作用域和闭包">
+<meta name="twitter:description" content="本文阐述了我对JavaScript作用域和闭包的一些理解，第一次写文，难免有阐述不清楚的地方，还望读者能够指出。">
 
 
 
@@ -126,7 +126,7 @@
 
 
 
-  <title>JavaScript 词法作用域与动态作用域 | 阿东的前端日记</title>
+  <title>JavaScript 作用域和闭包 | 阿东的前端日记</title>
   
 
 
@@ -280,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">JavaScript 词法作用域与动态作用域</h1>
+          <h1 class="post-title" itemprop="name headline">JavaScript 作用域和闭包</h1>
         
 
         <div class="post-meta">
@@ -352,15 +352,21 @@
       
 
       
-        <p>JavaScript如何对变量和函数进行查找以及确定当前执行环境的访问权限？<br><a id="more"></a></p>
-<h1 id="JavaScript-词法作用域与动态作用域"><a href="#JavaScript-词法作用域与动态作用域" class="headerlink" title="JavaScript 词法作用域与动态作用域"></a>JavaScript 词法作用域与动态作用域</h1><h2 id="执行环境及作用域"><a href="#执行环境及作用域" class="headerlink" title="执行环境及作用域"></a>执行环境及作用域</h2><p>执行环境定义了变量或函数有权访问的其他数据，决定了它们各自的行为，每个执行环境都有一个与之关联的变量对象，环境中所定义的变量和函数都保存在这个变量中（尽管我们无法访问到它）。</p>
+        <blockquote>
+<p>本文阐述了我对JavaScript作用域和闭包的一些理解，第一次写文，难免有阐述不清楚的地方，还望读者能够指出。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="执行环境及作用域"><a href="#执行环境及作用域" class="headerlink" title="执行环境及作用域"></a>执行环境及作用域</h2><p>执行环境定义了变量或函数有权访问的其他数据，决定了它们各自的行为，每个执行环境都有一个与之关联的变量对象，环境中所定义的变量和函数都保存在这个变量中（尽管我们无法访问到它）。</p>
 <p>全局执行环境是最外围的环境，根据JavaScript所在的宿主环境的不同，在web浏览器中，全局执行环境被认为是window对象，而在node中，全局执行环境被认为是global对象。当执行环境中的所有代码都被执行完毕后，该环境随之会被销毁，而环境中的变量和函数也会被销毁。</p>
 <p>当代码在一个环境中执行时，会创建变量对象的作用域链，作用域链则确保了对执行环境有权访问的所有变量和函数的有序访问，作用域的前端是当前执行环境的变量对象，末端是全局执行环境的变量对象。如下示例：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> name = <span class="string">'adong'</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayName</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(name) <span class="comment">// adong</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">anotherSayName</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> name = <span class="string">'rld'</span></span><br><span class="line">        <span class="built_in">console</span>.log(name) <span class="comment">// rld   </span></span><br><span class="line">    &#125;</span><br><span class="line">    anotherSayName()</span><br><span class="line">&#125;</span><br><span class="line">sayName()</span><br></pre></td></tr></table></figure></p>
 <p>首先当这段代码执行时，创建了如下作用域链：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">window</span><br><span class="line">   |—— name</span><br><span class="line">   |—— sayName()</span><br><span class="line">           |—— anotherSayName()</span><br><span class="line">                    |—— name</span><br></pre></td></tr></table></figure></p>
 <p>所以不难看住，anotherSayName的执行环境中，存在name变量，log出的name则是’rld’，而sayName的执行环境中，不存在name变量，会沿着作用域链向上寻找，最终在全局执行环境中找到了name变量，log出’adong’。</p>
-<h2 id="词法作用域与动态作用域"><a href="#词法作用域与动态作用域" class="headerlink" title="词法作用域与动态作用域"></a>词法作用域与动态作用域</h2><p>词法作用域又称为静态作用域，即函数的作用域在函数定义的时候就已经确定了；与之相对的动态作用域则是函数的定义域由函数的调用位置决定。让我们看一下下面的例子：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> name = <span class="string">'adong'</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayName</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name = <span class="string">'rld'</span></span><br><span class="line">    sayName2()    </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayName2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(name)</span><br><span class="line">&#125;</span><br><span class="line">sayName()</span><br></pre></td></tr></table></figure></p>
+<h2 id="词法作用域"><a href="#词法作用域" class="headerlink" title="词法作用域"></a>词法作用域</h2><p>词法作用域又称为静态作用域，即函数的作用域在函数定义的时候就已经确定了（当然会有一些特殊的情况），让我们看一下下面的例子：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> name = <span class="string">'adong'</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayName</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name = <span class="string">'rld'</span></span><br><span class="line">    sayName2()    </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayName2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(name)</span><br><span class="line">&#125;</span><br><span class="line">sayName()</span><br></pre></td></tr></table></figure></p>
 <p>首先执行sayName函数，在函数内部定义局部变量name，接着执行sayName2函数，如果JavaScript采用的是动态作用域的话，此时sayName2的执行环境中不存在变量name，会沿着作用域链向上查找，即会在sayName的执行环境中找到变量name，所以会输出’rld’。而运行结果却是’adong’，显然JavaScript采用的是词法作用域，在sayName2函数定义时，它的作用域就已经确定了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">window</span><br><span class="line">   |—— name</span><br><span class="line">   |—— sayName2()</span><br><span class="line">        |</span><br></pre></td></tr></table></figure></p>
 <p>所以结果是’adong’</p>
+<h2 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h2><p>我为什么把闭包放在这说，是因为我觉得综合前面所介绍的来看，不难看出闭包的形成无非两点原因：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">JavaScript使用的是词法作用域</span><br><span class="line">JavaScript的自动垃圾收集机制</span><br></pre></td></tr></table></figure></p>
+<p>让我们来看一段代码<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> count = <span class="number">100</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createCountFun</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">tempFun</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(count++)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> tempFun</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> fun = createCountFun()</span><br><span class="line">fun() <span class="comment">// 0</span></span><br><span class="line">fun() <span class="comment">// 1</span></span><br><span class="line">fun() <span class="comment">// 2</span></span><br></pre></td></tr></table></figure></p>
+<p>第一，正因为JavaScript使用的是词法作用域，所以执行fun时，访问到的是createCountFun里面的count变量。第二，通常情况下，JavaScript的垃圾回收器会在createCountFun执行结束之后，清除它所创建的作用域对象，但是fun却有着对createCountFun返回的那个函数tempFun的引用，所以，createCountFun的作用域对象不会被回收。</p>
 
       
     </div>
@@ -529,7 +535,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JavaScript-词法作用域与动态作用域"><span class="nav-number">1.</span> <span class="nav-text">JavaScript 词法作用域与动态作用域</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#执行环境及作用域"><span class="nav-number">1.1.</span> <span class="nav-text">执行环境及作用域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#词法作用域与动态作用域"><span class="nav-number">1.2.</span> <span class="nav-text">词法作用域与动态作用域</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#执行环境及作用域"><span class="nav-number">1.</span> <span class="nav-text">执行环境及作用域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#词法作用域"><span class="nav-number">2.</span> <span class="nav-text">词法作用域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#闭包"><span class="nav-number">3.</span> <span class="nav-text">闭包</span></a></li></ol></div>
             
 
           </div>
